@@ -61,8 +61,8 @@ import acsys
 #         ac.log(f"Error in on_render: {e}")
 
 
-lapcount_label = 0
-lapcount = 0
+lapcount_label = 1
+lapcount = 1
 speed = 0
 speed_label = 0
 rpm = 0
@@ -85,7 +85,7 @@ def acMain(ac_version):
     ac.console("Hello, Assetto Corsa console!")
 
     lapcount_label = ac.addLabel(appWindow, "Laps: 0")
-    ac.setPosition(lapcount_label, 3, 30)
+    ac.setPosition(lapcount_label, 10, 30)
 
     speed_label = ac.addLabel(appWindow, "Speed: 0 km/h")
     ac.setPosition(speed_label, 10, 50)
@@ -97,10 +97,10 @@ def acMain(ac_version):
     ac.setPosition(throttle_label, 10, 90)
 
     brake_label = ac.addLabel(appWindow, "Brake: 0%")
-    ac.setPosition(brake_label, 10, 120)
+    ac.setPosition(brake_label, 10, 110)
 
     gear_label = ac.addLabel(appWindow, "Gear: N")
-    ac.setPosition(gear_label, 10, 150)
+    ac.setPosition(gear_label, 10, 130)
 
     # Set a callback function to refresh the data
     # ac.addRenderCallback(appWindow, on_render)
@@ -131,11 +131,11 @@ def acUpdate(deltaT):
 
     if speed_get != speed:
         speed = speed_get
-        ac.setText(speed_label, "KM/H: {}".format(speed))
+        ac.setText(speed_label, "KM/H: {:.3f}".format(speed))
 
     if rpm_get != rpm:
         rpm = rpm_get
-        ac.setText(rpm_label, "RPM: {}".format(rpm))
+        ac.setText(rpm_label, "RPM: {:.3f}".format(rpm))
 
     if throttle != throttle_label:
         throttle = throttle_get
