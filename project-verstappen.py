@@ -1,66 +1,6 @@
 import ac
 import acsys
 
-# App initialization
-
-
-# def acMain(ac_version):
-#     global app_window, speed_label, rpm_label, throttle_label, brake_label, gear_label
-
-#     # Create the app
-#     app_window = ac.newApp("project-verstappen")
-#     ac.setTitle(app_window, "project-verstappen")
-#     ac.setSize(app_window, 300, 200)
-
-#     # Add labels to display car data
-#     speed_label = ac.addLabel(app_window, "Speed: 0 km/h")
-#     ac.setPosition(speed_label, 10, 30)
-
-#     rpm_label = ac.addLabel(app_window, "RPM: 0")
-#     ac.setPosition(rpm_label, 10, 60)
-
-#     throttle_label = ac.addLabel(app_window, "Throttle: 0%")
-#     ac.setPosition(throttle_label, 10, 90)
-
-#     brake_label = ac.addLabel(app_window, "Brake: 0%")
-#     ac.setPosition(brake_label, 10, 120)
-
-#     gear_label = ac.addLabel(app_window, "Gear: N")
-#     ac.setPosition(gear_label, 10, 150)
-
-#     # Set a callback function to refresh the data
-#     ac.addRenderCallback(app_window, on_render)
-
-#     return "project-verstappen"
-
-
-# # Function to refresh car data
-
-
-# def on_render(deltaT):
-#     try:
-#         car_id = 0  # Player's car ID
-
-#         # Fetch car data using ac.getCarState
-#         speed = ac.getCarState(car_id, "SpeedKMH")
-#         rpm = ac.getCarState(car_id, "RPM")
-#         throttle = ac.getCarState(car_id, "Gas") * 100
-#         brake = ac.getCarState(car_id, "Brake") * 100
-#         gear = ac.getCarState(car_id, "Gear")
-
-#         # Display gear as 'N' for 0, 'R' for -1, or the gear number
-#         gear_display = "N" if gear == 0 else "R" if gear == -1 else str(gear)
-
-#         # Update labels
-#         ac.setText(speed_label, f"Speed: {speed:.1f} km/h")
-#         ac.setText(rpm_label, f"RPM: {int(rpm)}")
-#         ac.setText(throttle_label, f"Throttle: {throttle:.1f}%")
-#         ac.setText(brake_label, f"Brake: {brake:.1f}%")
-#         ac.setText(gear_label, f"Gear: {gear_display}")
-#     except Exception as e:
-#         ac.log(f"Error in on_render: {e}")
-
-
 lapcount_label = 1
 lapcount = 1
 speed = 0
@@ -73,12 +13,14 @@ brake = 0
 brake_label = 0
 gear = 0
 gear_label = 0
+steer = 0
+steer_label = 0
 
 
 def acMain(ac_version):
-    global lapcount_label, speed_label, rpm_label, throttle_label, brake_label, gear_label
+    global lapcount_label, speed_label, rpm_label, throttle_label, brake_label, gear_label, steer_label
 
-    appWindow = ac.newApp("appName")
+    appWindow = ac.newApp("data console")
     ac.setSize(appWindow, 200, 200)
 
     ac.log("Hello, Assetto Corsa application world!")
@@ -102,9 +44,10 @@ def acMain(ac_version):
     gear_label = ac.addLabel(appWindow, "Gear: N")
     ac.setPosition(gear_label, 10, 130)
 
-    # Set a callback function to refresh the data
-    # ac.addRenderCallback(appWindow, on_render)
-    return "appName"
+    steer_label = ac.addLabel(appWindow, "Steer: 0")
+    ac.setPosition(steer_label, 10, 150)
+
+    return "data console"
 
 
 def acUpdate(deltaT):
@@ -114,6 +57,7 @@ def acUpdate(deltaT):
     global throttle, throttle_label
     global brake, brake_label
     global gear, gear_label
+    global steer, steer_label
 
     lap_get = ac.getCarState(0, acsys.CS.LapCount)
     speed_get = ac.getCarState(0, acsys.CS.SpeedKMH)
@@ -121,9 +65,10 @@ def acUpdate(deltaT):
     throttle_get = ac.getCarState(0, acsys.CS.Gas)
     brake_get = ac.getCarState(0, acsys.CS.Brake)
     gear_get = ac.getCarState(0, acsys.CS.Gear)
+    steer_get = ac.getCarState(0, acsys.CS.Steer)
 
-    ac.log("Laps: {}, Speed: {}, RPM: {}, Throttle: {}, Brake: {}, Gear: {}".format(
-        lap_get, speed_get, rpm_get, throttle_get, brake_get, gear_get))
+    ac.log("Laps: {}, Speed: {}, RPM: {}, Throttle: {}, Brake: {}, Gear: {}, Steer: {}".format(
+        lap_get, speed_get, rpm_get, throttle_get, brake_get, gear_get, steer_get))
 
     if lap_get > lapcount:
         lapcount = lap_get
@@ -153,3 +98,7 @@ def acUpdate(deltaT):
             ac.setText(gear_label, "Gear: N")
         else:
             ac.setText(gear_label, "Gear: {}".format(gear))
+
+    if steer != steer_get:
+        steer = steer_get
+        ac.setText(steer_label, "Steer: {:.1f}".format(steer))
