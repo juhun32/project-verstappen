@@ -38,8 +38,29 @@ def recordData(lapCount_get, lapTime_get, speedKPH_get, rpm_get, gear_get, throt
         "steer": "{:.7f}".format(steer_get),
     }
 
-    with open(os.path.join(os.path.dirname(__file__), 'car_data.json'), 'a') as json_file:
-        json.dump(data, json_file, indent=4)
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    # Define the path to the JSON file
+    file_path = os.path.join(os.path.dirname(__file__), 'car_data.json')
+    json_data = {}
+    json_data[timestamp] = data
+
+    if os.path.exists(file_path) and os.path.getsize(file_path) > 0:
+        # Load the existing JSON data and append the new record
+        with open(file_path, 'r+') as json_file:
+            try:
+                json_data = json.load(json_file)  # Read existing data
+            except json.JSONDecodeError:
+                json_data = {}  # Initialize a new dictionary if the file is invalid
+
+            json_data[timestamp] = data  # Add the new record
+            json_file.seek(0)  # Move to the start of the file
+            json.dump(json_data, json_file, indent=4)  # Write the updated JSON
+            json_file.truncate()  # Remove any leftover data
+    else:
+        # If file doesn't exist or is empty, create a new JSON object
+        with open(file_path, 'w') as json_file:
+            json.dump({timestamp: data}, json_file, indent=4)
 
 
 def acMain(ac_version):
