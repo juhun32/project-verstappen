@@ -1,3 +1,4 @@
+import time
 import ac
 import acsys
 import json
@@ -19,10 +20,30 @@ gear = 0
 gear_label = 0
 steer = 0
 steer_label = 0
+lapTime = 0
+lapTime_label = 0
+
+lastTime = ac.getCarState(0, acsys.CS.LapTime)
+
+
+def recordData(lapCount_get, lapTime_get, speedKPH_get, rpm_get, gear_get, throttle_get, brake_get, steer_get):
+    data = {
+        "lap": lapCount_get,
+        "lapTime": lapTime_get,
+        "speed": "{:.7f}".format(speedKPH_get),
+        "rpm": "{:.7f}".format(rpm_get),
+        "gear": gear_get,
+        "throttle": throttle_get,
+        "brake": brake_get,
+        "steer": "{:.7f}".format(steer_get),
+    }
+
+    with open(os.path.join(os.path.dirname(__file__), 'car_data.json'), 'a') as json_file:
+        json.dump(data, json_file, indent=4)
 
 
 def acMain(ac_version):
-    global lapcount_label, speed_label, rpm_label, throttle_label, brake_label, gear_label, steer_label
+    global lapcount_label, speed_label, rpm_label, throttle_label, brake_label, gear_label, steer_label, lapTime_label, time_test
 
     appWindow = ac.newApp("data console")
     ac.setSize(appWindow, 200, 200)
@@ -51,6 +72,12 @@ def acMain(ac_version):
     steer_label = ac.addLabel(appWindow, "Steer: 0")
     ac.setPosition(steer_label, 10, 150)
 
+    lapTime_label = ac.addLabel(appWindow, "Lap Time: 0")
+    ac.setPosition(lapTime_label, 10, 170)
+
+    time_test = ac.addLabel(appWindow, "Time: 0")
+    ac.setPosition(time_test, 10, 190)
+
     return "data console"
 
 
@@ -62,24 +89,28 @@ def acUpdate(deltaT):
     global brake, brake_label
     global gear, gear_label
     global steer, steer_label
+    global lapTime, lapTime_label
+    global time_test, lastTime
 
-    lap_get = ac.getCarState(0, acsys.CS.LapCount)
-    speed_get = ac.getCarState(0, acsys.CS.SpeedKMH)
+    lapCount_get = ac.getCarState(0, acsys.CS.LapCount) + 1
+    speedKPH_get = ac.getCarState(0, acsys.CS.SpeedKMH)
     rpm_get = ac.getCarState(0, acsys.CS.RPM)
     throttle_get = ac.getCarState(0, acsys.CS.Gas)
     brake_get = ac.getCarState(0, acsys.CS.Brake)
     gear_get = ac.getCarState(0, acsys.CS.Gear)
     steer_get = ac.getCarState(0, acsys.CS.Steer)
+    lapTime_get = ac.getCarState(0, acsys.CS.LapTime)
 
     ac.log("Laps: {}, Speed: {}, RPM: {}, Throttle: {}, Brake: {}, Gear: {}, Steer: {}".format(
-        lap_get, speed_get, rpm_get, throttle_get, brake_get, gear_get, steer_get))
+        lapCount_get, speedKPH_get, rpm_get, throttle_get, brake_get, gear_get, steer_get))
 
-    if lap_get > lapcount:
-        lapcount = lap_get
+    if lapCount_get > lapcount:
+        lapcount = lapCount_get
+        lastTime = 0
         ac.setText(lapcount_label, "Laps: {}".format(lapcount))
 
-    if speed_get != speed:
-        speed = speed_get
+    if speedKPH_get != speed:
+        speed = speedKPH_get
         ac.setText(speed_label, "KM/H: {:.3f}".format(speed))
 
     if rpm_get != rpm:
@@ -106,3 +137,16 @@ def acUpdate(deltaT):
     if steer != steer_get:
         steer = steer_get
         ac.setText(steer_label, "Steer: {:.1f}".format(steer))
+
+    if lapTime_get != lapTime:
+        lapTime = lapTime_get
+        ac.setText(lapTime_label, "Lap Time: {:.3f}".format(lapTime))
+
+    currentTime = ac.getCarState(0, acsys.CS.LapTime)
+    time_difference = abs(currentTime - lastTime)
+
+    if time_difference > 1000:
+        recordData(lapCount_get, lapTime_get, speedKPH_get, rpm_get,
+                   gear_get, throttle_get, brake_get, steer_get)
+        lastTime = currentTime
+        ac.setText(time_test, "Time: {}".format(time_difference))
