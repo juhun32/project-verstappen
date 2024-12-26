@@ -48,15 +48,15 @@ def average_slope_intercept(image, lines):
     left_fit_average = np.average(left_fit, axis=0)
     right_fit_average = np.average(right_fit, axis=0)
 
-    print(left_fit_average, right_fit_average)
+    left_line = make_coordinates(image, left_fit_average) if left_fit_average is not None else None
+    right_line = make_coordinates(image, right_fit_average) if right_fit_average is not None else None
 
-    left_line = make_coordinates(image, left_fit_average)
-    right_line = make_coordinates(image, right_fit_average)
-
-    return np.array([left_line, right_line])
+    return np.array([line for line in [left_line, right_line] if line is not None])
 
 
 def make_coordinates(image, line_parameters):
+    if line_parameters is None:
+        return None
     slope, intercept = line_parameters
     # y1 = image.shape[0]
     y1 = 400
