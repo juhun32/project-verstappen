@@ -37,7 +37,7 @@ vehicle = Vehicle('ego_vehicle', model='etk800', license='PYTHON')
 # # bng.close()
 
 scenario.add_vehicle(vehicle, pos=(
-    493.4843837138369, 178.14530187901983, 131.96188901015057), rot=(0, 90, 0))
+    493.4843837138369, 178.14530187901983, 131.96188901015057), rot_quat=(0, 0, -0.7071, 0.7071))
 
 # Start BeamNG and load the scenario
 scenario.make(bng)
@@ -54,7 +54,8 @@ try:
 
         # Access the position
         position = state['pos']
-        print(f"Vehicle Position: {position}")
+        direction = state['dir']
+        print(f"Vehicle Position: {position}, Direction: {direction}")
         time.sleep(1)
 finally:
     bng.close()
